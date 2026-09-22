@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.env.local
+.env.*.local
+data/rsvps.sqlite
+data/rsvps.sqlite-shm
+data/rsvps.sqlite-wal
+.DS_Store
