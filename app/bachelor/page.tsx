@@ -1,14 +1,9 @@
 import PartyInvite from "../../components/PartyInvite";
+import { getSiteContent } from "@/lib/site-content";
 
-export default function BachelorPage() {
-  return (
-    <PartyInvite
-      type="bachelor"
-      title="Alex's Bachelor Weekend"
-      location="Joshua Tree, California"
-      dates="September 4–6, 2026"
-      description="A private weekend for Alex and the people who have been there for every chapter."
-      activities={["Arrival drinks & desert sunset", "Open-road day trip", "Dinner, games & stories", "Slow morning and farewell brunch"]}
-    />
-  );
+export const dynamic = "force-dynamic";
+
+export default async function BachelorPage() {
+  const content = await getSiteContent();
+  return <PartyInvite type="bachelor" copy={content.bachelor} />;
 }

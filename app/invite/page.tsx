@@ -3,18 +3,11 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import WeddingLoader from "../../components/WeddingLoader";
+import { DEFAULT_SITE_CONTENT } from "@/lib/site-content-defaults";
+import PageContentEditor from "@/components/PageContentEditor";
 
-const weddingDate = new Date("2027-06-26T17:00:00-07:00");
-
-const schedule = [
-  { time: "12:30 PM", title: "Guest arrival", detail: "Find your seat at St. Monica before the ceremony begins." },
-  { time: "1:00 PM", title: "The ceremony", detail: "Join us as we say yes to forever." },
-  { time: "4:00 PM", title: "Cocktail hour", detail: "Drinks, small bites, and time to gather at Santa Monica Proper Hotel." },
-  { time: "5:00 PM", title: "Dinner & dancing", detail: "An evening of good food, music, and celebration until 10:00 PM." },
-];
-
-function getCountdown() {
-  const difference = Math.max(0, weddingDate.getTime() - Date.now());
+function getCountdown(targetDate: string) {
+  const difference = Math.max(0, new Date(targetDate).getTime() - Date.now());
   return {
     days: Math.floor(difference / 86400000),
     hours: Math.floor((difference / 3600000) % 24),
@@ -23,21 +16,21 @@ function getCountdown() {
   };
 }
 
-function Countdown() {
+function Countdown({ targetDate, labels }: { targetDate: string; labels: string[] }) {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    setCountdown(getCountdown());
-    const interval = window.setInterval(() => setCountdown(getCountdown()), 1000);
+    setCountdown(getCountdown(targetDate));
+    const interval = window.setInterval(() => setCountdown(getCountdown(targetDate)), 1000);
     return () => window.clearInterval(interval);
-  }, []);
+  }, [targetDate]);
 
   return (
     <div className="invite-countdown" aria-label="Countdown to the wedding">
-      {Object.entries(countdown).map(([label, value]) => (
-        <div className="countdown-unit" key={label}>
+      {Object.entries(countdown).map(([, value], index) => (
+        <div className="countdown-unit" key={labels[index]}>
           <strong>{String(value).padStart(2, "0")}</strong>
-          <span>{label}</span>
+          <span>{labels[index]}</span>
         </div>
       ))}
     </div>
@@ -45,6 +38,7 @@ function Countdown() {
 }
 
 export default function InvitePage() {
+  const [copy, setCopy] = useState(DEFAULT_SITE_CONTENT.invite);
   const [showLoader, setShowLoader] = useState(false);
   const [showRsvp, setShowRsvp] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -52,6 +46,19 @@ export default function InvitePage() {
   const [rsvpMessage, setRsvpMessage] = useState("");
   const [rsvpCount, setRsvpCount] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/site-content")
+      .then((response) => response.ok ? response.json() : null)
+      .then((content) => { if (content?.invite) setCopy(content.invite); })
+      .catch(() => undefined);
+  }, []);
+
+  const schedule = [1, 2, 3, 4].map((number) => ({
+    time: copy[`schedule${number}Time`],
+    title: copy[`schedule${number}Title`],
+    detail: copy[`schedule${number}Detail`],
+  }));
 
   function openRsvp() {
     setShowLoader(true);
@@ -78,11 +85,11 @@ export default function InvitePage() {
       if (!response.ok) throw new Error(result.error ?? "Unable to save RSVP");
 
       setRsvpCount(result.count);
-      setRsvpMessage("You are on the list. We cannot wait to celebrate with you.");
+      setRsvpMessage(copy.rsvpSuccessMessage);
       setFirstName("");
       setLastName("");
     } catch {
-      setRsvpMessage("We could not save your RSVP just now. Please try again.");
+      setRsvpMessage(copy.rsvpErrorMessage);
     } finally {
       setSaving(false);
     }
@@ -96,75 +103,75 @@ export default function InvitePage() {
         </video>
         <div className="invite-hero-shade" aria-hidden="true" />
         <div className="invite-hero-top">
-          <span>AA / 2027</span>
-          <span>Los Angeles, California</span>
+          <span>{copy.heroTopLeft}</span>
+          <span>{copy.heroTopRight}</span>
         </div>
         <div className="invite-hero-content">
-          <p className="invite-kicker">The wedding celebration of</p>
-          <h1>Amber <i>&amp;</i> Alex</h1>
-          <p className="invite-date">Saturday · June 26 · 2027</p>
-          <span className="invite-hero-stamp">Save<br />the<br />date</span>
+          <p className="invite-kicker">{copy.heroKicker}</p>
+          <h1>{copy.heroNames.split("&")[0]} <i>&amp;</i> {copy.heroNames.split("&").slice(1).join("&")}</h1>
+          <p className="invite-date">{copy.heroDate}</p>
+          <span className="invite-hero-stamp" style={{ whiteSpace: "pre-line" }}>{copy.heroStamp}</span>
         </div>
         <div className="invite-hero-bottom">
-          <span>Formal invitation</span>
-          <span className="hero-scroll">Scroll to explore ↓</span>
+          <span>{copy.heroFormalLabel}</span>
+          <span className="hero-scroll">{copy.heroScrollLabel}</span>
         </div>
       </header>
 
       <section className="invite-countdown-section">
         <div>
-          <p className="invite-section-label">Counting down to forever</p>
-          <h2>See you in the summer.</h2>
+          <p className="invite-section-label">{copy.countdownLabel}</p>
+          <h2>{copy.countdownHeading}</h2>
         </div>
-        <Countdown />
+        <Countdown targetDate={copy.countdownTarget} labels={[copy.countdownDaysLabel, copy.countdownHoursLabel, copy.countdownMinutesLabel, copy.countdownSecondsLabel]} />
       </section>
 
       <section className="invite-intro" aria-labelledby="invite-heading">
         <div>
-          <p className="invite-section-label">Formal invitation</p>
-          <h2 id="invite-heading">Together with their families, Amber and Alex invite you to celebrate their marriage.</h2>
+          <p className="invite-section-label">{copy.invitationLabel}</p>
+          <h2 id="invite-heading">{copy.invitationHeading}</h2>
         </div>
         <div className="invite-intro-copy">
-          <p>We cannot imagine this day without the people who have shaped our story. Please join us for an evening of dinner, dancing, and all the people we love most.</p>
-          <p className="invite-signoff">With love, A + A</p>
+          <p>{copy.invitationCopy}</p>
+          <p className="invite-signoff">{copy.invitationSignoff}</p>
         </div>
       </section>
 
       <section className="invite-feature-grid" aria-label="Wedding details">
         <div className="invite-feature-image invite-feature-image-one">
-          <img src="https://stmonica.net/images/banners/6328-31AA-3220244994-O.66b05d.jpg" alt="St. Monica Catholic Church in Santa Monica" />
-          <span>01 / The ceremony</span>
+          <img src={copy.ceremonyImageUrl} alt={copy.ceremonyImageAlt} />
+          <span>{copy.ceremonyImageLabel}</span>
         </div>
         <div className="invite-detail-block">
-          <p className="invite-section-label">Ceremony</p>
-          <h2>St. Monica Catholic Church</h2>
-          <p>1:00 PM</p>
-          <p>725 California Avenue</p>
-          <p>Santa Monica, CA 90403</p>
-          <p><a className="venue-map-link" href="https://www.google.com/maps/search/?api=1&query=St.+Monica+Catholic+Community+725+California+Avenue+Santa+Monica+CA+90403" target="_blank" rel="noreferrer">View directions ↗</a></p>
-          <p>Saturday, June 26, 2027</p>
-          <p className="invite-muted">Please arrive a little early for the ceremony.</p>
+          <p className="invite-section-label">{copy.ceremonyLabel}</p>
+          <h2>{copy.ceremonyVenue}</h2>
+          <p>{copy.ceremonyTime}</p>
+          <p>{copy.ceremonyStreet}</p>
+          <p>{copy.ceremonyCity}</p>
+          <p><a className="venue-map-link" href={copy.ceremonyMapUrl} target="_blank" rel="noreferrer">{copy.ceremonyMapLabel}</a></p>
+          <p>{copy.ceremonyDate}</p>
+          <p className="invite-muted">{copy.ceremonyNote}</p>
         </div>
         <div className="invite-detail-block invite-detail-accent">
-          <p className="invite-section-label">Reception</p>
-          <h2>Santa Monica Proper Hotel</h2>
-          <p>700 Wilshire Boulevard</p>
-          <p>Santa Monica, CA 90401</p>
-          <p>4:00–10:00 PM</p>
-          <p>Cocktail hour: 4:00–5:00 PM</p>
-          <p><a className="venue-map-link" href="https://www.google.com/maps/search/?api=1&query=Santa+Monica+Proper+Hotel+700+Wilshire+Boulevard+Santa+Monica+CA+90401" target="_blank" rel="noreferrer">View directions ↗</a></p>
+          <p className="invite-section-label">{copy.receptionLabel}</p>
+          <h2>{copy.receptionVenue}</h2>
+          <p>{copy.receptionStreet}</p>
+          <p>{copy.receptionCity}</p>
+          <p>{copy.receptionTime}</p>
+          <p>{copy.cocktailHour}</p>
+          <p><a className="venue-map-link" href={copy.receptionMapUrl} target="_blank" rel="noreferrer">{copy.receptionMapLabel}</a></p>
           <span className="feature-mark">A + A</span>
         </div>
         <div className="invite-feature-image invite-feature-image-two">
-          <img src="https://www.properhotel.com/wp-content/uploads/2025/04/SMP_5-3_Ballroom_8-1024x614.jpg.webp" alt="Santa Monica Proper Hotel reception ballroom" />
-          <span>02 / The reception</span>
+          <img src={copy.receptionImageUrl} alt={copy.receptionImageAlt} />
+          <span>{copy.receptionImageLabel}</span>
         </div>
       </section>
 
       <section className="invite-schedule" aria-labelledby="schedule-heading">
         <div className="invite-section-heading">
-          <p className="invite-section-label">The evening</p>
-          <h2 id="schedule-heading">A little glimpse of the day</h2>
+          <p className="invite-section-label">{copy.scheduleLabel}</p>
+          <h2 id="schedule-heading">{copy.scheduleHeading}</h2>
         </div>
         <div className="schedule-list">
           {schedule.map((item) => (
@@ -178,51 +185,52 @@ export default function InvitePage() {
 
       <section className="invite-planning" aria-label="Guest planning information">
         <div>
-          <p className="invite-section-label">For your weekend</p>
-          <h2>Make a little escape of it.</h2>
-          <p>We are gathering hotel, transportation, and local recommendations so your time in Los Angeles feels easy from arrival to farewell.</p>
+          <p className="invite-section-label">{copy.planningLabel}</p>
+          <h2>{copy.planningHeading}</h2>
+          <p>{copy.planningCopy}</p>
         </div>
         <div className="planning-links">
-          <a href="mailto:amberandalex@example.com?subject=Wedding%20question">Ask a question <span>↗</span></a>
-          <a href="https://www.google.com/maps/search/Los+Angeles,+California" target="_blank" rel="noreferrer">Explore Los Angeles <span>↗</span></a>
-          <a href="tel:+13108679141">Zelle · (310) 867-9141 <span>↗</span></a>
-          <a href="https://venmo.com/u/5622407587" target="_blank" rel="noreferrer">Venmo · Amber · (562) 240-7587 <span>↗</span></a>
+          <a href={copy.questionLinkUrl}>{copy.questionLinkLabel} <span>↗</span></a>
+          <a href={copy.losAngelesLinkUrl} target="_blank" rel="noreferrer">{copy.losAngelesLinkLabel} <span>↗</span></a>
+          <a href={copy.zelleLinkUrl}>{copy.zelleLinkLabel} <span>↗</span></a>
+          <a href={copy.venmoLinkUrl} target="_blank" rel="noreferrer">{copy.venmoLinkLabel} <span>↗</span></a>
         </div>
       </section>
 
       <section className="invite-rsvp" aria-labelledby="rsvp-heading">
         <div>
-          <p className="invite-section-label">Please reply</p>
-          <h2 id="rsvp-heading">We hope you can be there.</h2>
-          <p>Kindly respond by May 1, 2027. A formal RSVP link will be included with your invitation.</p>
+          <p className="invite-section-label">{copy.rsvpLabel}</p>
+          <h2 id="rsvp-heading">{copy.rsvpHeading}</h2>
+          <p>{copy.rsvpCopy}</p>
         </div>
-        <button type="button" onClick={openRsvp}>Save your place <span>↗</span></button>
+        <button type="button" onClick={openRsvp}>{copy.rsvpButtonLabel} <span>↗</span></button>
       </section>
 
       <footer className="invite-footer">
-        <p className="script-font">With love, Amber &amp; Alex</p>
-        <p>JUNE 26 · LOS ANGELES</p>
+        <p className="script-font">{copy.footerSignoff}</p>
+        <p>{copy.footerLocation}</p>
       </footer>
 
-      {showLoader ? <div className="invite-loader-overlay" aria-live="polite"><WeddingLoader size={210} text="Opening your invitation..." /></div> : null}
+      {showLoader ? <div className="invite-loader-overlay" aria-live="polite"><WeddingLoader size={210} text={copy.loaderText} /></div> : null}
 
       {showRsvp ? (
         <div className="wedding-rsvp-dialog" role="dialog" aria-modal="true" aria-labelledby="wedding-rsvp-title">
           <div className="wedding-rsvp-panel">
-            <button type="button" className="wedding-dialog-close" onClick={() => setShowRsvp(false)} aria-label="Close RSVP form">Close</button>
-            <p className="invite-section-label">Please reply</p>
-            <h2 id="wedding-rsvp-title">Who is joining us?</h2>
-            <p className="wedding-rsvp-copy">Enter your first and last name to save your place at the wedding.</p>
+            <button type="button" className="wedding-dialog-close" onClick={() => setShowRsvp(false)} aria-label={copy.dialogCloseLabel}>{copy.dialogCloseLabel}</button>
+            <p className="invite-section-label">{copy.rsvpLabel}</p>
+            <h2 id="wedding-rsvp-title">{copy.rsvpDialogHeading}</h2>
+            <p className="wedding-rsvp-copy">{copy.rsvpDialogCopy}</p>
             <form onSubmit={saveRsvp} className="wedding-rsvp-form">
-              <label>First name<input required value={firstName} onChange={(event) => setFirstName(event.target.value)} autoComplete="given-name" /></label>
-              <label>Last name<input required value={lastName} onChange={(event) => setLastName(event.target.value)} autoComplete="family-name" /></label>
-              <button type="submit" disabled={saving}>{saving ? "Saving..." : "Confirm RSVP"}</button>
+              <label>{copy.rsvpFirstNameLabel}<input required value={firstName} onChange={(event) => setFirstName(event.target.value)} autoComplete="given-name" /></label>
+              <label>{copy.rsvpLastNameLabel}<input required value={lastName} onChange={(event) => setLastName(event.target.value)} autoComplete="family-name" /></label>
+              <button type="submit" disabled={saving}>{saving ? copy.rsvpSavingLabel : copy.rsvpSubmitLabel}</button>
             </form>
             {rsvpMessage ? <p className="wedding-rsvp-message" role="status">{rsvpMessage}</p> : null}
             {rsvpCount !== null ? <p className="wedding-rsvp-count">{rsvpCount} guest{rsvpCount === 1 ? "" : "s"} on the list</p> : null}
           </div>
         </div>
       ) : null}
+      <PageContentEditor section="invite" content={copy} onContentSaved={setCopy} />
     </main>
   );
 }

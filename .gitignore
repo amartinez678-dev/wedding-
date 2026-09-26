@@ -5,4 +5,6 @@ node_modules/
 data/rsvps.sqlite
 data/rsvps.sqlite-shm
 data/rsvps.sqlite-wal
+data/site-content.json
+data/site-content.json.tmp
 .DS_Store

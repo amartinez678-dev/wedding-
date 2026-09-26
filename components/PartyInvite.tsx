@@ -3,17 +3,16 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import WeddingLoader from "./WeddingLoader";
+import type { EditableText } from "@/lib/site-content-defaults";
+import PageContentEditor from "./PageContentEditor";
 
 type PartyInviteProps = {
   type: "bachelor" | "bachelorette";
-  title: string;
-  location: string;
-  dates: string;
-  description: string;
-  activities: string[];
+  copy: EditableText;
 };
 
-export default function PartyInvite({ type, title, location, dates, description, activities }: PartyInviteProps) {
+export default function PartyInvite({ type, copy }: PartyInviteProps) {
+  const [pageCopy, setPageCopy] = useState(copy);
   const [showLoader, setShowLoader] = useState(false);
   const [showRsvp, setShowRsvp] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -38,7 +37,7 @@ export default function PartyInvite({ type, title, location, dates, description,
         throw new Error("Unable to save RSVP");
       }
 
-      setRsvpMessage("You are on the list. We cannot wait to celebrate with you.");
+      setRsvpMessage(pageCopy.successMessage);
       setFirstName("");
       setLastName("");
       setShowLoader(true);
@@ -47,7 +46,7 @@ export default function PartyInvite({ type, title, location, dates, description,
         setShowRsvp(false);
       }, 1400);
     } catch {
-      setRsvpMessage("We could not save that just now. Please try again.");
+      setRsvpMessage(pageCopy.errorMessage);
     } finally {
       setSaving(false);
     }
@@ -62,55 +61,56 @@ export default function PartyInvite({ type, title, location, dates, description,
         <div className="party-hero-shade" aria-hidden="true" />
         <div className="party-orbit party-orbit-one" aria-hidden="true" />
         <div className="party-orbit party-orbit-two" aria-hidden="true" />
-        <div className="party-hero-top"><span>{isBachelorette ? "B / 2026" : "A / 2026"}</span><span>Private weekend invite</span></div>
+        <div className="party-hero-top"><span>{pageCopy.heroEyebrow}</span><span>{pageCopy.heroTopLabel}</span></div>
         <div className="party-hero-copy">
-          <p className="party-kicker">{isBachelorette ? "The bride's last disco" : "The groom's final fling"}</p>
-          <h1>{title}</h1>
-          <p className="party-hero-date">{location} <span>·</span> {dates}</p>
+          <p className="party-kicker">{pageCopy.heroKicker}</p>
+          <h1>{pageCopy.title}</h1>
+          <p className="party-hero-date">{pageCopy.location} <span>·</span> {pageCopy.dates}</p>
         </div>
-        <div className="party-hero-bottom"><span>{isBachelorette ? "Girls only" : "The boys"}</span><span>Scroll for details ↓</span></div>
+        <div className="party-hero-bottom"><span>{pageCopy.heroFooter}</span><span>{pageCopy.scrollLabel}</span></div>
       </section>
 
       <section className="party-intro">
-        <div><p className="party-label">You are invited</p><h2>{description}</h2></div>
-        <div className="party-intro-note"><p>Pack light, bring your best stories, and get ready for a weekend that deserves its own group chat.</p><p className="party-script">See you there.</p></div>
+        <div><p className="party-label">{pageCopy.introLabel}</p><h2>{pageCopy.description}</h2></div>
+        <div className="party-intro-note"><p>{pageCopy.introCopy}</p><p className="party-script">{pageCopy.introSignoff}</p></div>
       </section>
 
       <section className="party-info-grid" aria-label="Party details">
-        <div className="party-info-card party-info-main"><p className="party-label">Where we are going</p><h2>{location}</h2><p>{dates}</p><p className="party-muted">The full address, arrival details, and room assignments will be shared in the group chat.</p></div>
-        <div className="party-info-card party-info-accent"><p className="party-label">The mood</p><h2>{isBachelorette ? "Pink skies & late nights" : "Desert air & good times"}</h2><p>{isBachelorette ? "Poolside afternoons, dinner reservations, matching pajamas, and dancing until we lose track of time." : "A weekend of open roads, cold drinks, competitive games, and one very happy groom."}</p></div>
+        <div className="party-info-card party-info-main"><p className="party-label">{pageCopy.destinationLabel}</p><h2>{pageCopy.location}</h2><p>{pageCopy.dates}</p><p className="party-muted">{pageCopy.destinationNote}</p></div>
+        <div className="party-info-card party-info-accent"><p className="party-label">{pageCopy.moodLabel}</p><h2>{pageCopy.moodHeading}</h2><p>{pageCopy.moodCopy}</p></div>
       </section>
 
       <section className="party-itinerary">
-        <div><p className="party-label">On the agenda</p><h2>A weekend worth remembering.</h2></div>
-        <div className="party-activity-list">{activities.map((activity, index) => <div className="party-activity" key={activity}><span>0{index + 1}</span><h3>{activity}</h3><b>↗</b></div>)}</div>
+        <div><p className="party-label">{pageCopy.itineraryLabel}</p><h2>{pageCopy.itineraryHeading}</h2></div>
+        <div className="party-activity-list">{[1, 2, 3, 4].map((number) => <div className="party-activity" key={number}><span>0{number}</span><h3>{pageCopy[`activity${number}`]}</h3><b>↗</b></div>)}</div>
       </section>
 
       <section className="party-rsvp">
-        <div><p className="party-label">RSVP</p><h2>Count yourself in.</h2><p>Let us know if you can make it so we can lock in the plans, rooms, and reservations.</p></div>
-        <button type="button" onClick={() => { setRsvpMessage(""); setShowRsvp(true); }}>RSVP now <span>↗</span></button>
+        <div><p className="party-label">{pageCopy.rsvpLabel}</p><h2>{pageCopy.rsvpHeading}</h2><p>{pageCopy.rsvpCopy}</p></div>
+        <button type="button" onClick={() => { setRsvpMessage(""); setShowRsvp(true); }}>{pageCopy.rsvpButtonLabel} <span>↗</span></button>
       </section>
 
-      <footer className="party-footer"><p className="party-script">Made for the memories.</p><p>{isBachelorette ? "AMBER'S CREW" : "ALEX'S CREW"}</p></footer>
+      <footer className="party-footer"><p className="party-script">{pageCopy.footerSignoff}</p><p>{pageCopy.footerCrew}</p></footer>
 
       {showRsvp ? (
         <div className="party-rsvp-dialog" role="dialog" aria-modal="true" aria-labelledby="party-rsvp-title">
           <div className="party-rsvp-panel">
             <button type="button" className="party-dialog-close" onClick={() => setShowRsvp(false)} aria-label="Close RSVP form">Close</button>
-            <p className="party-label">{isBachelorette ? "Amber's bachelorette" : "Alex's bachelor"}</p>
-            <h2 id="party-rsvp-title">Save your place.</h2>
-            <p>Tell us who is joining the weekend.</p>
+            <p className="party-label">{pageCopy.dialogLabel}</p>
+            <h2 id="party-rsvp-title">{pageCopy.dialogHeading}</h2>
+            <p>{pageCopy.dialogCopy}</p>
             <form onSubmit={handleRsvp} className="party-rsvp-form">
-              <label>First name<input required value={firstName} onChange={(event) => setFirstName(event.target.value)} autoComplete="given-name" /></label>
-              <label>Last name<input required value={lastName} onChange={(event) => setLastName(event.target.value)} autoComplete="family-name" /></label>
-              <button type="submit" disabled={saving}>{saving ? "Saving..." : "Confirm RSVP"}</button>
+              <label>{pageCopy.firstNameLabel}<input required value={firstName} onChange={(event) => setFirstName(event.target.value)} autoComplete="given-name" /></label>
+              <label>{pageCopy.lastNameLabel}<input required value={lastName} onChange={(event) => setLastName(event.target.value)} autoComplete="family-name" /></label>
+              <button type="submit" disabled={saving}>{saving ? pageCopy.savingLabel : pageCopy.submitLabel}</button>
             </form>
             {rsvpMessage ? <p className="party-rsvp-message" role="status">{rsvpMessage}</p> : null}
           </div>
         </div>
       ) : null}
 
-      {showLoader ? <div className="invite-loader-overlay" aria-live="polite"><WeddingLoader size={210} text="Opening party details..." /></div> : null}
+      {showLoader ? <div className="invite-loader-overlay" aria-live="polite"><WeddingLoader size={210} text={pageCopy.loaderText} /></div> : null}
+      <PageContentEditor section={type} content={pageCopy} onContentSaved={setPageCopy} />
     </main>
   );
 }
