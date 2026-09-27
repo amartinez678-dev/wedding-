@@ -1051,6 +1051,133 @@ body {
 
 .site-editor-message p { color: #62665e; }
 
+.camera-page {
+  min-height: 100vh;
+  background: #f4f1e8;
+  color: #292b25;
+}
+
+.camera-shell {
+  width: min(76rem, calc(100% - 3rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 5rem;
+}
+
+.camera-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0 1.25rem;
+  border-bottom: 1px solid #c8c6b9;
+  color: #59614f;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.camera-wordmark { color: #354c3a; font-size: 1rem; text-decoration: none; }
+
+.camera-intro {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3rem;
+  align-items: end;
+  padding: 4.5rem 0 3.5rem;
+  border-bottom: 1px solid #c8c6b9;
+}
+
+.camera-kicker {
+  margin: 0 0 1rem;
+  color: #8b6047;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.camera-intro h1 {
+  max-width: 12ch;
+  margin: 0;
+  font-family: Didot, "Bodoni 72", "Iowan Old Style", "Times New Roman", serif;
+  font-size: clamp(3rem, 7vw, 6rem);
+  font-weight: 400;
+  line-height: 0.98;
+}
+
+.camera-upload-block > p:first-child {
+  max-width: 34rem;
+  margin: 0 0 1.25rem;
+  color: #5c6057;
+  line-height: 1.6;
+}
+
+.camera-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; }
+
+.camera-action {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.camera-action-primary { background: #354c3a; color: #fff; }
+.camera-action-secondary { border: 1px solid #909487; background: transparent; color: #30362f; }
+.camera-file-input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+.camera-action:focus-within { outline: 2px solid #8b6047; outline-offset: 3px; }
+.camera-action:has(input:disabled) { opacity: 0.65; cursor: wait; }
+.camera-status { min-height: 1.4rem; margin: 0.75rem 0 0; color: #59614f; font-size: 0.85rem; }
+
+.camera-gallery { padding-top: 2rem; }
+
+.camera-gallery-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.camera-gallery-heading h2 {
+  margin: 0;
+  font-family: Didot, "Bodoni 72", "Iowan Old Style", "Times New Roman", serif;
+  font-size: 1.8rem;
+  font-weight: 400;
+}
+
+.camera-gallery-heading span { color: #8b6047; font-variant-numeric: tabular-nums; }
+.camera-gallery-empty { padding: 2rem 0; border-top: 1px solid #c8c6b9; color: #74776e; }
+
+.camera-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.camera-photo {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: #e4e0d5;
+  color: #fff;
+}
+
+.camera-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform 240ms ease; }
+.camera-photo:hover img { transform: scale(1.025); }
+.camera-photo span { position: absolute; right: 0.6rem; bottom: 0.6rem; padding: 0.25rem 0.4rem; background: rgba(25, 30, 24, 0.72); font-size: 0.72rem; }
+
+@media (max-width: 720px) {
+  .camera-shell { width: min(100% - 2rem, 40rem); padding-top: 1rem; }
+  .camera-intro { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 0 2rem; }
+  .camera-intro h1 { font-size: clamp(3rem, 15vw, 4.5rem); }
+  .camera-action-secondary { display: none; }
+  .camera-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+}
+
 .site-page-picker {
   max-width: 48rem;
   padding-top: 1.5rem;

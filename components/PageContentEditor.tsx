@@ -8,6 +8,7 @@ const sectionLabels: Record<keyof SiteContent, string> = {
   invite: "Wedding invitation",
   bachelor: "Bachelor weekend",
   bachelorette: "Bachelorette weekend",
+  camera: "Photo gallery",
 };
 
 function formatLabel(key: string) {

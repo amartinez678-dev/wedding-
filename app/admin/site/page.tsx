@@ -21,6 +21,7 @@ export default async function SiteEditorPage() {
         <a href="/invite?edit=1"><span>Wedding invitation</span><b>↗</b></a>
         <a href="/bachelor?edit=1"><span>Bachelor weekend</span><b>↗</b></a>
         <a href="/bachelorette?edit=1"><span>Bachelorette weekend</span><b>↗</b></a>
+        <a href="/camera?edit=1"><span>Photo gallery</span><b>↗</b></a>
       </nav>
     </main>
   );

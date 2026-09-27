@@ -56,7 +56,7 @@ export async function PATCH(request: Request) {
     }
 
     const { section, content } = payload as { section?: unknown; content?: unknown };
-    const sections = new Set(["home", "invite", "bachelor", "bachelorette"]);
+    const sections = new Set(["home", "invite", "bachelor", "bachelorette", "camera"]);
     if (typeof section !== "string" || !sections.has(section)) {
       return NextResponse.json({ error: "Unknown page." }, { status: 400 });
     }

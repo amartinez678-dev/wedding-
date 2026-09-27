@@ -24,6 +24,7 @@ function normalizeSiteContent(value: unknown): SiteContent {
     invite: mergeEditableText(DEFAULT_SITE_CONTENT.invite, source.invite),
     bachelor: mergeEditableText(DEFAULT_SITE_CONTENT.bachelor, source.bachelor),
     bachelorette: mergeEditableText(DEFAULT_SITE_CONTENT.bachelorette, source.bachelorette),
+    camera: mergeEditableText(DEFAULT_SITE_CONTENT.camera, source.camera),
   };
 }
 

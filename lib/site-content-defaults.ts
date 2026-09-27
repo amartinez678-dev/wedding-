@@ -5,6 +5,7 @@ export type SiteContent = {
   invite: EditableText;
   bachelor: EditableText;
   bachelorette: EditableText;
+  camera: EditableText;
 };
 
 export const DEFAULT_SITE_CONTENT: SiteContent = {
@@ -190,5 +191,18 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     successMessage: "You are on the list. We cannot wait to celebrate with you.",
     errorMessage: "We could not save that just now. Please try again.",
     loaderText: "Opening party details...",
+  },
+  camera: {
+    eyebrow: "A + A · THE WEDDING",
+    title: "Share the moment.",
+    introduction: "Add a photo from the celebration to our guest gallery.",
+    takePhotoLabel: "Take a photo",
+    choosePhotoLabel: "Choose a photo",
+    uploadingLabel: "Uploading photo...",
+    uploadedMessage: "Your photo has been added to the gallery.",
+    uploadErrorMessage: "We couldn't upload that photo. Please try again.",
+    galleryHeading: "The guest gallery",
+    galleryEmptyMessage: "The gallery is waiting for its first photo.",
+    galleryErrorMessage: "Photos couldn't be loaded right now.",
   },
 };
